@@ -144,7 +144,8 @@ module Hand # Keeps track of behaviors common to Dealer and Player
 
   def is_busted? # returns T if busted, F if not.  Put here so because it's
                  # common to both Player and Dealer
-    total > 21
+    total >  Blackjack::BLACKJACK_AMOUNT
+              # refer to Blackjack class, refer to the blackjack amount constant
   end
 end
 
@@ -190,6 +191,9 @@ end
 class Blackjack
   attr_accessor :deck, :player, :dealer # make getters/setters for instance vars
 
+  BLACKJACK_AMOUNT = 21
+  DEALER_HIT_AMOUNT = 17
+
   # Think about starting with:
   # game = Blackjack.new
   # game.start
@@ -234,7 +238,6 @@ class Blackjack
     player_turn
     dealer_turn
     who_won?(player, dealer) # use if both players stay
-
   end
 
   def set_player_name
@@ -273,7 +276,7 @@ class Blackjack
   # is, it can respond to this method call (.total) that's all that matters.
   # (duck-typing: if it quacks like a duck and looks like a duck, it's a duck.)
   def blackjack_or_bust?(player_or_dealer)
-    if player_or_dealer.total == 21  # exit condition
+    if player_or_dealer.total == BLACKJACK_AMOUNT  # exit condition
       if player_or_dealer.is_a?(Dealer)
         # If it's a dealer, put this message:
         puts "Sorry, dealer hit blackjack.  #{player.name} loses."
@@ -282,14 +285,14 @@ class Blackjack
       else  # it it hits else it's a Player:
         puts "Congratulations, you hit blackjack!  #{player.name} wins!"
       end
-      exit # exit program
+      play_again? # exit program?
     elsif player_or_dealer.is_busted? # exit condition
       if player_or_dealer.is_a?(Dealer)
         puts "Congratulations, dealer busted.  #{player.name} wins!"
       else
         puts "Sorry, #{player.name} busted.  #{player.name} loses."
       end
-      exit # exit program
+      play_again? # exit program?
     end
   end
 
@@ -343,7 +346,7 @@ class Blackjack
 
     blackjack_or_bust?(dealer)
 
-    while dealer.total < 17 # Keep hitting until dealer hits hard 17
+    while dealer.total < DEALER_HIT_AMOUNT # Hit until dealer hits hard 17
       new_card = deck.deal_a_card
       puts "Dealing card to dealer: #{new_card}"
       dealer.add_card(new_card)
@@ -362,6 +365,24 @@ class Blackjack
       puts "Sorry, #{player.name} loses."
     else
       puts "It's a push."
+    end
+    play_again?
+  end
+
+  def play_again?
+    puts ""
+    puts "Would you like to play again?  1) Yes 2) No, exit"
+    if gets.chomp == '1'
+      puts "Starting new game..."
+      puts ""
+      # Reset deck, player hand, dealer hand
+      deck = Deck.new
+      player.cards = []
+      dealer.cards = []
+      start
+    else
+      puts "Thank you for playing Blackjack!  Goodbye."
+      exit
     end
   end
 end # end of class Blackjack
