@@ -65,7 +65,7 @@ class Deck # behavior of a deck
 
   def initialize
     @cards = [] # Deck is an array of card objects.  Pop 52 cards w/ 2 loops:
-    ['H', 'D', 'S', 'C'].each do |suit| # pass suit in as var here, then fv below
+    ['H', 'D', 'S', 'C'].each do |suit| # pass suit in as var here, then fv next
       ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].each do |face_value|
         @cards << Card.new(suit, face_value) # pop card array with objects
       end
@@ -82,10 +82,12 @@ class Deck # behavior of a deck
   end
 
   def size
-    cards.size  # call this vs. just using deck.card.size in pry to decouple dependencies; allows another
-                # layer to do some processing e.g. process out certain values e.g. don't include jokers
-                # allows another layer to add or interject or filter based on your class's application logic w/o
-                # depending on the size  implementation of array
+    cards.size  # call this vs. just using deck.card.size in pry to decouple
+                # dependencies; allows another layer to do some processing e.g.
+                # process out certain values e.g. don't include jokers allows
+                # another layer to add or interject or filter based on your
+                # class's application logic w/o depending on the size
+                # implementation of array
   end
 
 end
