@@ -129,16 +129,17 @@ module Hand # Keeps track of behaviors common to Dealer and Player
   end
 
   def add_card(new_card)
-    cards << new_card # In the module once these instance methods have been
-                      # added to the class it is just as if this method was in
-                      # the class itself, so it has access to the getter: cards.
-                      # Once I mixin this module it's as if these methods are in
-                      # the class and can access instance variables. There is a
-                      # coupling involved-an assumption of cards in classes that
-                      # use this module: once this module is included in the
-                      # class the class needs an array of cards.  Modules are a
-                      # great way to extract behavior, but there is still a
-                      # coupling/assumptions there that we need to pay heed to.
+    cards << new_card
+        # In the module once these instance methods have been
+        # added to the class it is just as if this method was in
+        # the class itself, so it has access to the getter: cards.
+        # Once I mixin this module it's as if these methods are in
+        # the class and can access instance variables. There is a
+        # coupling involved-an assumption of cards in classes that
+        # use this module: once this module is included in the
+        # class the class needs an array of cards.  Modules are a
+        # great way to extract behavior, but there is still a
+        # coupling/assumptions there that we need to pay heed to.
   end
 
   def is_busted? # returns T if busted, F if not.  Put here so because it's
@@ -214,7 +215,7 @@ class Blackjack
       # Here is an example of building a game by starting with a sequence of
       # events and rules of the game to execute the game.
 
-      #**** Use this as a guide to build these methods:
+      # **** Use this as a guide to build these methods:
 
       # Sequence of events we will convert to methods:
         # set_player_name
@@ -224,11 +225,16 @@ class Blackjack
         # dealer_turn
         # who_won?(player, dealer) # use if both players stay
 
+      # When coding methods just concentrate on that method
+
     # Now start game:
     set_player_name
     deal_cards
     show_flop
     player_turn
+    dealer_turn
+    who_won?(player, dealer) # use if both players stay
+
   end
 
   def set_player_name
@@ -263,9 +269,9 @@ class Blackjack
   # How can I have an object that could be of one class or another and have it
   # call the same method, even though the method has the same name?
   # In ruby we can do that as long as this (player or dealer) object responds
-  # to this method call (.total) no matter what type or what class this object
-  # is, it can respond to this method call (.total) that's all that matters
-  # (duck-typing: if it quacks like a duck and looks like a duck it. a duck).
+  # to this method call (.total). No matter what type or what class this object
+  # is, it can respond to this method call (.total) that's all that matters.
+  # (duck-typing: if it quacks like a duck and looks like a duck, it's a duck.)
   def blackjack_or_bust?(player_or_dealer)
     if player_or_dealer.total == 21  # exit condition
       if player_or_dealer.is_a?(Dealer)
@@ -328,16 +334,36 @@ class Blackjack
       # program in the blackjack_or_bust method.  Therefore, player stays.
       # This means we hit "break" above, so program exits while loop and
       # executes:
-      puts "#{player.name} stays"
+      puts "#{player.name} stays at #{player.total}."
+          # Redundant with output above
   end
 
-  # def dealer_turn
+  def dealer_turn
+    puts "Dealer's turn."
 
-  # end
+    blackjack_or_bust?(dealer)
 
-  # def who_won?(player, dealer)
+    while dealer.total < 17 # Keep hitting until dealer hits hard 17
+      new_card = deck.deal_a_card
+      puts "Dealing card to dealer: #{new_card}"
+      dealer.add_card(new_card)
+      puts "Dealer total is now: #{dealer.total}."
 
-  # end
+      blackjack_or_bust?(dealer)
+    end
+    puts "Dealer stays at #{dealer.total}."
+        #Dealer hits hard 17 or above and does not bust
+  end
+
+  def who_won?(player, dealer)
+    if player.total > dealer.total
+      puts "Congratulations, #{player.name} wins!"
+    elsif player.total < dealer.total
+      puts "Sorry, #{player.name} loses."
+    else
+      puts "It's a push."
+    end
+  end
 end # end of class Blackjack
 
 game = Blackjack.new
