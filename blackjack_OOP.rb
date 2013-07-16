@@ -178,11 +178,11 @@ class Dealer
     puts "==== Dealer's Hand ====" # This is within the dealer class so don't
                                    # worry about #{name}
     puts "=> First card is hidden"
-    puts "=> Second card is #{cards[1]}" # access cards array in Dealer object.
-                                         # I removed 'puts' from Card class to
-                                         # avoid 2 'puts' and printing object
-                                         # info after call to cards[1].to_s
-                                         # which calls pretty_output
+    puts "=> Second card is #{cards[1]}"
+        # access cards array in Dealer object.  I removed 'puts' from Card
+        # class to avoid 2 'puts' and printing object info after call to
+        # cards[1].to_s which calls pretty_output
+  end
 end
 
 # Game engine
@@ -193,13 +193,13 @@ class Blackjack
   # game = Blackjack.new
   # game.start
 
-def initialize
-# then start naming instance vars w/o worrying about what to initialize them to:
+  def initialize
+  # then start naming instance vars w/o worrying about what to initialize them to:
     # @deck =
     # @player =
     # @dealer =
 
-# then think about where to get the assignments from:
+  # then think about where to get the assignments to instance vars from:
     @deck = Deck.new
     @player = Player.new("Player 1")
       # class Player requires a name for param n in <def initialize(n)>.
@@ -219,17 +219,16 @@ def initialize
       # Sequence of events we will convert to methods:
         # set_player_name
         # deal_cards
-        # show_hands
+        # show_hands => later changed to show_flop
         # player_turn
         # dealer_turn
         # who_won?(player, dealer) # use if both players stay
 
-      set_player_name
-      deal_cards
-      show_flop
-      player_turn
-      # dealer_turn
-      # who_won?(player, dealer)
+    # Now start game:
+    set_player_name
+    deal_cards
+    show_flop
+    player_turn
   end
 
   def set_player_name
@@ -257,25 +256,34 @@ def initialize
     dealer.show_flop
   end
 
-  # player or dealer responds to the same method calls
+  # Duck-Typing:
+  # This (passed in) object, whether it's a player or a dealer responds to the
+  # same method calls.
+  # This is different from statically-typed languages like java.
+  # How can I have an object that could be of one class or another and have it
+  # call the same method, even though the method has the same name?
+  # In ruby we can do that as long as this (player or dealer) object responds
+  # to this method call (.total) no matter what type or what class this object
+  # is, it can respond to this method call (.total) that's all that matters
+  # (duck-typing: if it quacks like a duck and looks like a duck it. a duck).
   def blackjack_or_bust?(player_or_dealer)
-    # duck typing...as long as it can respond to .total, that's all the matters
-    if player_or_dealer.total == 21
-      if player_or_dealer.is_a?(Dealer)  # If it's a dealer, put this message:
+    if player_or_dealer.total == 21  # exit condition
+      if player_or_dealer.is_a?(Dealer)
+        # If it's a dealer, put this message:
         puts "Sorry, dealer hit blackjack.  #{player.name} loses."
       # you still have access to the name getter as long as you are in the game
-      # engine, and the game engine is the Blackjack class
-      else
+      # engine, and the game engine is the Blackjack class that called this method
+      else  # it it hits else it's a Player:
         puts "Congratulations, you hit blackjack!  #{player.name} wins!"
       end
       exit # exit program
-    elsif player_or_dealer.is_busted?
+    elsif player_or_dealer.is_busted? # exit condition
       if player_or_dealer.is_a?(Dealer)
         puts "Congratulations, dealer busted.  #{player.name} wins!"
       else
         puts "Sorry, #{player.name} busted.  #{player.name} loses."
       end
-      exit
+      exit # exit program
     end
   end
 
@@ -283,40 +291,53 @@ def initialize
     puts "its #{player.name}'s turn."
 
     # Did they hit blackjack?
-    # blackjack is a subset of blackjack_or_bust, so just call the latter
-    blackjack_or_bust?(player)
-    while !player.is_busted?
-      puts "What would your like to do?  1) hit 2) stay"
-      response = gets.chomp # response is local to while loop
+    # blackjack is a subset of blackjack_or_bust, so just call the latter.
+    blackjack_or_bust?(player)  # Method not in classes above... build it now
 
-      if !['1', '2'].include?(response)
+    while !player.is_busted? # run loop while player is NOT (!) busted
+      puts "What would your like to do?  1) hit 2) stay"
+      response = gets.chomp # response is scoped/local to while loop
+
+      # error-check user input
+      if !['1', '2'].include?(response) # if player does not enter 1 or 2
         puts "Error: you must enter 1 or 2"
-        next # go to next iteration of while loop
+        next # if error condition, then go to next iteration of while loop
       end
 
+      # input of 2 means player stays.  Puts message, break out of while loop
       if response == '2'
         puts "#{player.name} chose to stay."
         break
       end
 
-      # player asks for a hit
-      new_card = deck.deal_a_card
+      # if input not error or 2, player asked for a hit
+      new_card = deck.deal_a_card # capture card
       puts "Dealing card to #{player.name}: #{new_card}"
-      player.add_card(new_card)
-      puts "#{player.name}'s total is now: #{player.total}"
+            # calls to_s => pretty_output on card object and formats output
 
-      blackjack_or_bust?(player)
+      player.add_card(new_card) # add card to player
+
+      puts "#{player.name}'s total is now: #{player.total}"
+        # Call total.  We delegated calculation of total to total method so we
+        # don't have to pass in explicitly anymore because player is now in
+        # charge of that (it's in the Hand module which is mixed into the player)
+
+      blackjack_or_bust?(player) # Did player hit 21 or bust?
     end
+      # Since there was no blackjack or bust we didn't hit "exit" and end
+      # program in the blackjack_or_bust method.  Therefore, player stays.
+      # This means we hit "break" above, so program exits while loop and
+      # executes:
       puts "#{player.name} stays"
   end
 
-  def dealer_turn
+  # def dealer_turn
 
-  end
+  # end
 
-  def who_won?(player, dealer)
+  # def who_won?(player, dealer)
 
-  end
+  # end
 end # end of class Blackjack
 
 game = Blackjack.new
