@@ -95,25 +95,30 @@ module Hand # Keeps track of behaviors common to Dealer and Player
     puts "==== #{name}'s Hand ====" #name is getter of instance var
     cards.each do|card|  #itereate through each of the cards
     puts "=> #{card}"  # calls card.to_s, which is pretty_output
-                    # if I preface with a "puts" it displays object info, unless I remove puts from pretty_output
-                    # which I did to fix dealer.dealer_flop because it had a puts
+                    # if I preface with a "puts" it displays object info, unless
+                    # I remove puts from pretty_output which I did to fix
+                    # dealer.dealer_flop because it had a puts
     end
     puts "=> Total: #{total}"
   end
 
   def total
-    face_value = cards.map{|card| card.face_value } #face_values grabs each card's face value using the getter of each card
-                                      # create new array using map method on array of just the face values e.g. 3. 4. J. Q
+    face_value = cards.map{|card| card.face_value }
+            # face_values grabs each card's face value using the getter of each
+            # card create new array using map method on array of just the face
+            # values e.g. 3. 4. J. Q
     total = 0
     face_value.each do |value|
       if value == "A"
         total += 11
       else
-        total += (value.to_i == 0 ? 10 : value.to_i) #If to_i = 0 then j, K, Q so add 10, else add face value
+        total += (value.to_i == 0 ? 10 : value.to_i)
+          #If to_i = 0 then j, K, Q so add 10, else add face value
       end
     end
 
-    face_value.select{|value| value == "A"}.count.times do        # Correct for any Aces
+    # Correct for any Aces
+    face_value.select{|value| value == "A"}.count.times do
       break if total <= 21
       total -= 10
     end
@@ -122,15 +127,20 @@ module Hand # Keeps track of behaviors common to Dealer and Player
   end
 
   def add_card(new_card)
-    cards << new_card # in the module once these instance methods have been added to the class it is
-                      # just as if this method was in the class itself, so it has access to the getter: cards.
-                      # Once I mixin this module it's as if these methods are in the class and can access instance variables.
-                      # There is a coupling in involved-Assumption of cards in class that uses this module.
-                      # Once this module is included in the class the class needs an array of cards.
-                      # Module is a great way to extract behavior, but there is still a coupling/assumptions there.
+    cards << new_card # In the module once these instance methods have been
+                      # added to the class it is just as if this method was in
+                      # the class itself, so it has access to the getter: cards.
+                      # Once I mixin this module it's as if these methods are in
+                      # the class and can access instance variables. There is a
+                      # coupling involved-an assumption of cards in classes that
+                      # use this module: once this module is included in the
+                      # class the class needs an array of cards.  Modules are a
+                      # great way to extract behavior, but there is still a
+                      # coupling/assumptions there that we need to pay heed to.
   end
 
-  def is_busted? # returns T if busted, F if not.  Put here so because it's common to both Player and Dealer
+  def is_busted? # returns T if busted, F if not.  Put here so because it's
+                 # common to both Player and Dealer
     total > 21
   end
 end
@@ -141,8 +151,9 @@ class Player
   attr_accessor :name, :cards
 
   def initialize(n)
-    @name = n # w/o @ it is a local var
-    @cards = [] # allows us to add card to player e.g. bob.cards << deck.deal_a_card
+    @name = n   # w/o @ it is a local var
+    @cards = [] # allows us to add card to player
+                # e.g. bob.cards << deck.deal_a_card
   end
 
   def show_flop
@@ -156,45 +167,61 @@ class Dealer
   attr_accessor :name, :cards
 
   def initialize
-    @name = "Dealer"  #nothing passed in
+    @name = "Dealer"  # nothing passed in during instanciation, so direct
+                      # assignment of a value to instance var '@name'
     @cards = []
   end
 
   def show_flop
-    puts "==== Dealer's Hand ====" # This is within the dealer class so don't worry about #{name}
+    puts "==== Dealer's Hand ====" # This is within the dealer class so don't
+                                   # worry about #{name}
     puts "=> First card is hidden"
-    puts "=> Second card is #{cards[1]}" # access cards array in Dealer object
-  end
+    puts "=> Second card is #{cards[1]}" # access cards array in Dealer object.
+                                         # I removed 'puts' from Card class to
+                                         # avoid 2 'puts' and printing object
+                                         # info after call to cards[1].to_s
+                                         # which calls pretty_output
 end
 
 # Game engine
 class Blackjack
-  attr_accessor :deck, :player, :dealer  # make getters and setters for instance vars
+  attr_accessor :deck, :player, :dealer # make getters/setters for instance vars
 
-  def initialize
-    #           # start with just the instance vars, then worry about what to initialize them to
+  # Think about starting with:
+  # game = Blackjack.new
+  # game.start
+
+def initialize
+# then start naming instance vars w/o worrying about what to initialize them to:
     # @deck =
     # @player =
     # @dealer =
 
+# then think about where to get the assignments from:
     @deck = Deck.new
-    @player = Player.new("Player 1") #init takes a param
+    @player = Player.new("Player 1")
+      # class Player requires a name for param n in <def initialize(n)>.
+      # @player now refers to object instance of class player
     @dealer = Dealer.new
   end
 
   def start
-      # Do this part after finishing the design portion of the game above/outside of the game engine.
-      # Here is an example of building a game by starting with sequence of events to execute game.
-      # ****Use this as a guide to build these methods:
+      # Do this part after finishing the design portion of the game
+      # outside of the game engine.
 
-      # set_player_name
-      # deal_cards
-      # show_hands
-      # player_turn
-      # dealer_turn
-      # who_won?(player, dealer) # use if both players stay
+      # Here is an example of building a game by starting with a sequence of
+      # events and rules of the game to execute the game.
 
-      # Play game
+      #**** Use this as a guide to build these methods:
+
+      # Sequence of events we will convert to methods:
+        # set_player_name
+        # deal_cards
+        # show_hands
+        # player_turn
+        # dealer_turn
+        # who_won?(player, dealer) # use if both players stay
+
       set_player_name
       deal_cards
       show_flop
@@ -205,27 +232,37 @@ class Blackjack
 
   def set_player_name
     print "Please type your name: "
-    player.name = gets.chomp  # player uses setter method created by attr_accessor to set instance var
+    player.name = gets.chomp  # We could refer to it by instance var or use
+                              # attr_accessor, as we did here. player refers to
+                              # setter method created by attr_accessor to set
+                              # instance var player which refers to an object of
+                              # class Player, and we can say player.name because
+                              # in the player class we have a name setter,
+                              # as well.
   end
 
   def deal_cards
-    player.add_card(deck.deal_a_card)
+    player.add_card(deck.deal_a_card) # deal a card to player, dealer, alternate
+                                      # between deals
     dealer.add_card(deck.deal_a_card)
     player.add_card(deck.deal_a_card)
     dealer.add_card(deck.deal_a_card)
   end
 
-  def show_flop # just call methods from respective classes.  Flop is the cards when they first come out.
+  def show_flop # just call methods from respective classes.
+                # Flop is the cards when they first come out.
     player.show_flop
     dealer.show_flop
   end
 
-  def blackjack_or_bust?(player_or_dealer) # player or dealer responds to the same method calls
-    if player_or_dealer.total == 21 # duck typing...as long as it can respond to .total, that's all the matters
+  # player or dealer responds to the same method calls
+  def blackjack_or_bust?(player_or_dealer)
+    # duck typing...as long as it can respond to .total, that's all the matters
+    if player_or_dealer.total == 21
       if player_or_dealer.is_a?(Dealer)  # If it's a dealer, put this message:
         puts "Sorry, dealer hit blackjack.  #{player.name} loses."
-      # you still have access to the name getter as long as you are in the game engine,
-      # and the game engine is the Blackjack class
+      # you still have access to the name getter as long as you are in the game
+      # engine, and the game engine is the Blackjack class
       else
         puts "Congratulations, you hit blackjack!  #{player.name} wins!"
       end
@@ -243,7 +280,9 @@ class Blackjack
   def player_turn
     puts "its #{player.name}'s turn."
 
-    blackjack_or_bust?(player) # Did they hit blackjack?  This is a subset of blackjack_or_bust, so just call that
+    # Did they hit blackjack?
+    # blackjack is a subset of blackjack_or_bust, so just call the latter
+    blackjack_or_bust?(player)
     while !player.is_busted?
       puts "What would your like to do?  1) hit 2) stay"
       response = gets.chomp # response is local to while loop
