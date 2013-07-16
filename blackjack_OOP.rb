@@ -3,18 +3,27 @@
 # July 1, 2013
 
 # Methodology:
-# Objects first - take apart classes, focus on how each of these objects behave, and the state of each object w/o deeply thinking
-# about the game play (with the exception of the card class).  We then extracted behaviors common to Dealer and Player into
-# module Hand.  This is called The data-oriented approach to OOP, which is also how Rails is built.  It is also known as the
-# classic-style of OOP.
+# Objects first - take apart classes, focus on how each of these objects behave,
+# and the state of each object w/o deeply thinking about the game play (with the
+# exception of the card class).  We then extracted behaviors common to Dealer
+# and Player into module Hand.  This is called The data-oriented approach to
+# OOP, which is also how Rails is built.  It is also known as the classic-style
+# of OOP.
 
-# We tested along the way with some methods e.g. Create a deck, player & dealer, assign some cards, calculate total, show cards:
+# We tested along the way with some methods e.g. Create a deck, player & dealer,
+# assign some cards, calculate total, show cards:
+
 # deck = Deck.new
-# player = Player.new('Larry'); player.add_card(deck.deal_a_card); player.add_card(deck.deal_a_card); player.show_hand
-# dealer = Dealer.new;          dealer.add_card(deck.deal_a_card); dealer.add_card(deck.deal_a_card); dealer.show_hand
 
-# Then (after general class behavior is fairly complete) in order to use this type of OOP we need an engine/controller to
-# orchestrate how these objects interact with each other.  We will call this engine the Blackjack class.
+# player = Player.new('Larry'); player.add_card(deck.deal_a_card);
+#     player.add_card(deck.deal_a_card); player.show_hand
+
+# dealer = Dealer.new; dealer.add_card(deck.deal_a_card);
+#     dealer.add_card(deck.deal_a_card); dealer.show_hand
+
+# Then (after general class behavior is fairly complete) in order to use this
+# type of OOP we need an engine/controller to orchestrate how these objects
+# interact with each other.  We will call this engine the Blackjack class.
 
 require 'rubygems'
 require 'pry'
